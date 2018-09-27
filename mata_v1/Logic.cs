@@ -16,8 +16,8 @@ namespace mata_v1
         private PictureBox _pBox;
         private SolidBrush brush;
 
-        private TextBox _tConsole;
-        private TextBox _tConsoleDuo;
+        private static TextBox _tConsole;
+        private static TextBox _tConsoleDuo;
         private TextBox _tConnect;
 
         private Receiver _receiver;
@@ -25,7 +25,7 @@ namespace mata_v1
         private Bitmaper _bitmaper;
 
         private Packet _packet;
-        public List<Packet> _packetList;
+        public List<byte[]> packetList;
 
         Thread receiverTh;
         Thread bitmaperTh;
@@ -34,61 +34,43 @@ namespace mata_v1
 
         public Logic(TextBox tConsole, TextBox tConnect, PictureBox pBox, TextBox tConsoleDuo)
         {
-            _tConsole = tConsole;
-            _tConsoleDuo = tConsoleDuo;
-            _tConnect = tConnect;
-            _pBox = pBox;
-            _displayer = new Displayer(pBox);
-            _displayer.preparePictureBox();
-
-            _packetList = new List<Packet>();
-
-            _receiver = new Receiver(this, _packetList);     //  OGARNAC SENS RECEIVERA !!
-            _bitmaper = new Bitmaper(_packetList, this);
-        }
-
-        public void Drawing()
-        {
-
-            Pen pen = new Pen(Color.White)
+            if (1 == 0)
+                DbService.ExecuteCommand();
+            else
             {
-                Alignment = PenAlignment.Inset,
-                Width = 0.05f
-            };
 
-            Bitmap bMap = new Bitmap(_pBox.Width, _pBox.Height, PixelFormat.Format32bppArgb);
-            Graphics graphicsBitmap = Graphics.FromImage(bMap);
-            for (int i = 0; i < _pBox.Width; i++)
-            {
-                for (int j = 0; j < _pBox.Height; j++)
-                {
-                    Rectangle rect = new Rectangle(
-                        (i - 1) * 1,
-                        (j - 1) * 1,
-                        1,
-                        1
-                    );
-                    brush = new SolidBrush(Color.Black);
+                _tConsole = tConsole;
+                _tConsoleDuo = tConsoleDuo;
+                _tConnect = tConnect;
+                _pBox = pBox;
+                _displayer = new Displayer(pBox);
+                _displayer.preparePictureBox();
 
-                    graphicsBitmap.DrawRectangle(pen, rect);
-                    graphicsBitmap.FillRectangle(brush, rect);
+                packetList = new List<byte[]>();
 
-                }
+
+                _receiver = new Receiver(ref packetList);
+
+                //_packetList = new List<Packet>();
+
+                //_receiver = new Receiver(this, _packetList);     //  OGARNAC SENS RECEIVERA !!
+                _bitmaper = new Bitmaper(ref packetList, this);
             }
-            _pBox.Image = bMap;
-            _pBox.Update();
+
+            
         }
 
-        public void connect()
+        public string connect()
         {
-            _receiver.connect();
+            return _receiver.connect();
         }
         
         public void startReceiver()
         {
+            receiverTh = new Thread(new ThreadStart(_receiver.StartListening));
 
-            //_receiver.receive();
-            receiverTh = new Thread(new ThreadStart(_receiver.receive));
+            ////_receiver.receive();
+            //receiverTh = new Thread(new ThreadStart(_receiver.receive));
 
             try
             {
@@ -98,13 +80,13 @@ namespace mata_v1
             catch (ThreadStateException e)
             {
                 _tConsole.Text += e;  // Display text of exception
-                                 // Result says there was an error
+                                      // Result says there was an error
             }
             catch (ThreadInterruptedException e)
             {
                 _tConsole.Text += e;       // This exception means that the thread
-                                      // was interrupted during a Wait
-                                      // Result says there was an error
+                                           // was interrupted during a Wait
+                                           // Result says there was an error
             }
 
 
@@ -129,61 +111,19 @@ namespace mata_v1
         }
 
         
-        public void stopReceiver()
+        public string stopReceiver()
         {
-
-            _receiver.setWorking(false);
-            receiverTh.Abort();
-
-            _bitmaper.setWorking(false);
-            bitmaperTh.Abort();
-
-            /*_packetList = _receiver.getPacketList();
-            byte[] _packet = new byte[15000];
-
-            _displayer = new displayer(_pBox, _packetList, this);
-            displayerTh = new Thread(new ThreadStart(_displayer.start));
-
-            try
-            {
-                displayerTh.Start();
-
-            }
-            catch (ThreadStateException e)
-            {
-                _tConsole.Text += e;  // Display text of exception
-                                 // Result says there was an error
-            }
-            catch (ThreadInterruptedException e)
-            {
-                _tConsole.Text += e;       // This exception means that the thread
-                                      // was interrupted during a Wait
-                                      // Result says there was an error
-            }*/
-
-
+            MessageBox.Show( _receiver.Disconnect());
+            return string.Empty;
             
-            _bitmaper.buildBitmap();
-            //_receiver.close();
         }
-        
 
-
-        /*
-        public Color GetColorOf(double value, double minValue, double maxValue)
+        public string stopBitmaper()
         {
-            if (value == 0 || minValue == maxValue)
-                return Color.White;
+            MessageBox.Show(_bitmaper.setWorking(false));
+            return string.Empty;
 
-            var g = (int)(240 * value / maxValue);
-            var r = (int)(240 * value / minValue);
-
-            return (value > 0
-                ? Color.FromArgb(240 - g, 255 - (int)(g * ((255 - 155) / 240.0)), 240 - g)
-                : Color.FromArgb(255 - (int)(r * ((255 - 230) / 240.0)), 240 - r, 240 - r));
         }
-        */
-
 
         public void updatePictureBox(Bitmap _bmap)
         {
@@ -203,8 +143,10 @@ namespace mata_v1
             }
         }
 
-        public void updateConsoleBox(String txt)
+        public static void updateConsoleBox(string txt)
         {
+            //_tConsole.AppendText(txt);
+
             if (_tConsole.InvokeRequired)
             {
                 _tConsole.Invoke(new MethodInvoker(
@@ -232,7 +174,7 @@ namespace mata_v1
         }
 
 
-        public void updateConsoleDuoBox(String txt)
+        public static void updateConsoleDuoBox(String txt)
         {
             if (_tConsoleDuo.InvokeRequired)
             {

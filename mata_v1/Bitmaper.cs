@@ -13,21 +13,23 @@ namespace mata_v1
     class Bitmaper
     {
         private SolidBrush brush;
-        private Packet _packet;
-        public List<Packet> _packetList;
+        public List<byte[]> _packetList;
 
-        private const byte _STX = 0x53;
-        private const byte _ETX = 0xA;
-        private const byte _DLE = 0x44;
-        private const byte _sBitmap = 0x46;
+        private byte _STX = 0x53;
+        private byte _ETX = 0xA;
+        private byte _DLE = 0x44;
+        private byte _sBitmap = 0x46;
         private bool _working = true;
+
+        private static int height = MainSettings.Default.AreaHeight;
+        private static int width = MainSettings.Default.AreaWidth;
 
         private Logic _logic;
         private Map _map;
 
         private Color _myColor;
 
-        public Bitmaper(List<Packet> packetList, Logic logic)
+        public Bitmaper(ref List<byte[]> packetList, Logic logic)
         {
             _packetList = packetList;
             _logic = logic;
@@ -35,15 +37,12 @@ namespace mata_v1
 
         public void buildBitmap()
         {
-            int _sx, _sy, pixelX, pixelY;
-            int packetSz = 0, force = 0, sumForce = 0;
+            int _sx, _sy, pixelX, pixelY, scaledPixelY = 0, scaledPixelX = 0;
+            int force = 0, sumForce = 0;
             int pcktNum = _packetList.Count();
-            byte[] buffer = new byte[12000];
+            byte[] buffer = new byte[height * width * 2 + 7];
             //_map = new Map(80, 40);;
 
-            
-
-           
             Bitmap _bitmap;
 
             Pen pen = new Pen(Color.White)
@@ -54,85 +53,119 @@ namespace mata_v1
 
             _bitmap = new Bitmap(400, 200, PixelFormat.Format32bppArgb);
             Graphics graphicsBitmap = Graphics.FromImage(_bitmap);
-            while (_working)
+            try
             {
-                while (_packetList.Count() > 0)
+                while (_working) // && _packetList.Count() > 0)
                 {
-                    _packet = _packetList.ElementAt(0);
-                    buffer = _packet.getBuffer();
-                    sumForce = 0;
-                    if (buffer[0] == _STX && buffer[1] == _sBitmap)
+                    if (_packetList.Count == 0)
                     {
-                        _sx = buffer[2] + buffer[3] * 256;
-                        _sy = buffer[4] + buffer[5] * 256;
-                        if (_sx != 80 || _sy != 40)
+                        Logic.updateConsoleDuoBox("poczekalnia");
+                        Thread.Sleep(500);
+                    }
+                    else
+                    {
+                        buffer = _packetList.ElementAt(0);
+                        //Logic.updateConsoleBox(string.Format("otrzymałem: {0}", buffer[0]));
+                        sumForce = 0;
+                        if (buffer[0] == _STX && buffer[1] == _sBitmap && buffer.Length == height * width * 2 + 7)
                         {
-                            break;
-                            _logic.updateConsoleDuoBox("nieprawidlowa dlugosc ramki \n ");
-                            _logic.updateConsoleDuoBox("\n");
-                        }
-                        packetSz = 5;
+                            _sx = buffer[2] + buffer[3] * 256;
+                            _sy = buffer[4] + buffer[5] * 256;
+                            if (_sx != MainSettings.Default.AreaWidth || _sy != MainSettings.Default.AreaHeight)
+                            {
+                                _packetList.RemoveAt(0);
+                                break;
+                                //_logic.updateConsoleDuoBox("nieprawidlowa dlugosc ramki \n ");
+                                //_logic.updateConsoleDuoBox("\n");
+                            }
 
-                        pixelX = 0;
-                        pixelY = 0;
+                            pixelX = 0;
+                            pixelY = 0;
+                            scaledPixelX = 0;
+                            scaledPixelY = 0;
 
-                        for (int j = 6; j < _packet.getPacketSz() - 5; j += 2)
-                        {
-                            if (buffer[j] == _DLE)
-                                j++;
-                            force = buffer[j] + buffer[j + 1] * 256;
-                            sumForce += force;
-                            packetSz += 2;
-                            if (force < 100)
-                                _myColor = Color.Black;
-                            else
-                                _myColor = percentToColor(force, 0, 1000);
+                            for (int j = 6; j < buffer.Length - 2; j += 2)
+                            {
+                                force = buffer[j] + buffer[j + 1] * 256;
+                                sumForce += force;
+                                if (force < 100)
+                                    _myColor = Color.Black;
+                                else
+                                    _myColor = percentToColor(force, 0, 1000);
 
-                            if (packetSz < 6407)
+                                //scaledPixelX = _map.getField
+
+
+                                //if (pixelY < _sy / 2)
+                                //{
+                                //    if (pixelX >= 10 && pixelX < _sx / 2 - 10)
+                                //    {
+                                //        scaledPixelY = pixelY + _sy / 2;
+                                //        scaledPixelX = scaledPixelY;
+                                //        scaledPixelY = _sy - pixelX - 1;
+                                //    }
+                                //    if (pixelX >= 50 && pixelX < _sx - 10)
+                                //    {
+                                //        scaledPixelY = pixelY + _sy / 2;
+                                //        scaledPixelX = scaledPixelY;
+                                //        scaledPixelY = _sy - pixelX - 1;
+                                //    }
+                                //    if (pixelX >= 10 && pixelX < _sx / 2 - 10)
+                                //    {
+                                //        if (pixelY < _sy / 2)
+                                //            scaledPixelY = pixelY + _sy / 2;
+                                //        else if (pixelY >= _sy / 2)
+                                //            scaledPixelY = pixelY - _sy / 2;
+
+                                //        scaledPixelX = scaledPixelY;
+                                //        scaledPixelY = _sy - pixelX - 1;
+                                //    }
+
+                                //    /*if (pixelY < _sy / 2)
+                                //        scaledPixelY = pixelY + _sy / 2;
+                                //    else if (pixelY >= _sy / 2)
+                                //        scaledPixelY = pixelY - _sy / 2;*/
+
                                 for (int k = 0; k < 5; k++)
                                     for (int l = 0; l < 5; l++)
-                                        _bitmap.SetPixel(pixelX * 5 + k, pixelY * 5 + l, _myColor);
-
-                            pixelX++;
-
-                            if (pixelX == 80)
-                            {
-                                pixelX = 0;
-                                pixelY++;
+                                    {
+                                        _bitmap.SetPixel(
+                                            scaledPixelX * 5 + k,
+                                            scaledPixelY * 5 + l,
+                                            _myColor);
+                                    }
+                                pixelX++;
+                                Logic.updateConsoleBox(string.Format("sumForce: {0}", sumForce));
+                                if (pixelX == MainSettings.Default.AreaWidth)
+                                {
+                                    pixelX = 0;
+                                    pixelY++;
+                                }
                             }
-                            
-
-                            
-
-                            /*Rectangle _rectangle = new Rectangle(
-                                pixelX * 5,
-                                pixelY * 5,
-                                5,
-                                5
-                            );
-                            if (force != 0)
+                            _logic.updatePictureBox(_bitmap);
+                            /*
+                            for (int x =0; x < _bitmap.Width; x++)
                             {
-                                brush = new SolidBrush(percentToColor(force, 0, 65000));
-                            }
-                            else
-                                brush = new SolidBrush(Color.Black);
-                            graphicsBitmap.DrawRectangle(pen, _rectangle);
-                            graphicsBitmap.FillRectangle(brush, _rectangle);*/
+                                for (int y=0; y< _bitmap.Height/2; y++)
+                                {
+                                    _myColor = _bitmap.GetPixel(x, y + _bitmap.Height / 2);
+                                    _bitmap.SetPixel(x, y + _bitmap.Height / 2, _bitmap.GetPixel(x, y));
+                                    _bitmap.SetPixel(x, y, _myColor);
+                                }
+                            }*/
                         }
-                        _logic.updateConsoleDuoBox("dlugosc pakietu " + packetSz);
-                        _logic.updateConsoleDuoBox("\n");
+
+                        if (_packetList.Count > 1)
+                            _packetList.RemoveAt(0);
                     }
-                    _logic.updatePictureBox(_bitmap);
-                    _packetList.RemoveAt(0);
                 }
-                if (_packetList.Count() == 0)
-                {
-                    _logic.updateConsoleDuoBox("poczekalnia");
-                    Thread.Sleep(100);
-                }
+
+            }
+            catch (Exception ex)
+            {
+                Logic.updateConsoleBox(string.Format("Bitmaper: {0}", ex.Message));
             }
         }
-
         public Color GetColorOf(double value, double minValue, double maxValue)
         {
             if (value == 0)
@@ -169,9 +202,10 @@ namespace mata_v1
             return Color.FromArgb(r, g, 0);
         }
 
-        public void setWorking (bool working)
+        public string setWorking (bool working)
         {
             _working = working;
+           return working ? "Włączono proces Bitmappera.\n" : "Wyłączono proces Bitmapera.\n";
         }
     }
 }

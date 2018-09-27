@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace mata_v1
 {
-    class Displayer
+    public class Displayer
     {
         private PictureBox _pBox;
         private SolidBrush brush;

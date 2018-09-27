@@ -7,3 +7,15 @@ D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\mata_v1.exe
 D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\mata_v1.pdb
 D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\obj\Debug\mata_v1.exe
 D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\obj\Debug\mata_v1.pdb
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\EntityFramework.dll
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\EntityFramework.SqlServer.dll
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\System.Data.SQLite.dll
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\System.Data.SQLite.EF6.dll
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\System.Data.SQLite.Linq.dll
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\EntityFramework.xml
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\EntityFramework.SqlServer.xml
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\System.Data.SQLite.xml
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\bin\Debug\System.Data.SQLite.dll.config
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\obj\Debug\mata_v1.AboutBox1.resources
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\obj\Debug\mata_v1.PatientManager.resources
+D:\studia\magisterskie\praca magisterska\mata_v1\mata_v1\obj\Debug\mata_v2.csproj.CoreCompileInputs.cache

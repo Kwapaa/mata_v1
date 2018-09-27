@@ -11,7 +11,7 @@ namespace mata_v1
     {
         private Color _clr;
         private int _force;
-
+        private int x, y;
         public Field()
         {
 
@@ -25,6 +25,15 @@ namespace mata_v1
         {
             return this._force;
         }
+        public int getX()
+        {
+            return this.x;
+        }
+        public int getY()
+        {
+            return this.y;
+        }
+
 
         public void setClr(Color color)
         {
@@ -34,6 +43,13 @@ namespace mata_v1
         {
             this._force = force;
         }
-       
+        public void setX(int _x)
+        {
+            this.x = _x;
+        }
+        public void setY( int _y)
+        {
+            this.y = _y;
+        }
     }
 }
